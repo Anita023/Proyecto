@@ -4,53 +4,58 @@
 //
 //  Proyecto de Desempeño · SENA Formación Complementaria 3406211
 //  Módulo: JavaScript · Unidades 1 a 7
+//
+//  INSTRUCCIONES PARA EL APRENDIZ:
+//  ─────────────────────────────────────────────────────────────────────────────
+//  Este archivo está vacío. Tu tarea es implementar todas las funciones
+//  necesarias para que la aplicación funcione de acuerdo al enunciado.
+//
+//  Pasos recomendados:
+//    1. Lee el enunciado completo en ENUNCIADO.md
+//    2. Abre spacex_control_vuelos.html en el navegador con F12 activo
+//    3. Revisa el HTML para conocer los IDs disponibles
+//    4. Revisa el CSS para conocer las clases que debes aplicar
+//    5. Implementa las secciones de este archivo en orden
+//
+//  IMPORTANTE: No modifiques spacex_control_vuelos.html ni styles-vuelos.css
 // =============================================================================
 
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECCIÓN 1 — ALMACÉN DE DATOS
 //
-//  'lanzamientos' es un array (lista) de objetos. Cada objeto representa
-//  un vuelo con sus propiedades: id, nombre, tipo, fecha, objetivo, estado.
+//  Declara aquí las variables que guardarán el estado global de la aplicación:
+//  la colección de lanzamientos registrados y cualquier variable de control
+//  que necesites para el funcionamiento de la interfaz.
 //
-//  'filtroActivo' guarda qué botón de filtro está seleccionado en este momento.
-//  Empieza en "todos" porque al abrir la app se ven todos los vuelos.
-//
-//  'contadorId' es un número que sube cada vez que creamos un vuelo nuevo.
-//  Lo usamos para generar IDs únicos como SX-2026-001, SX-2026-002, etc.
+//  Piensa en qué tipo de estructura de datos es más apropiada para
+//  mantener una lista de registros, cada uno con múltiples propiedades.
 // ─────────────────────────────────────────────────────────────────────────────
 
-let lanzamientos = [];      
-let filtroActivo = "todos";  
-let contadorId   = 1;       
+let lanzamientos = [];
+let filtroActivo = "todos";
+let contadorId   = 1;
 
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECCIÓN 2 — FUNCIONES UTILITARIAS
 //
-//  generarId()
-//    Genera un string como "SX-2026-001".
-//    Usamos padStart(3, "0") para que el número siempre tenga 3 dígitos:
-//    1 → "001", 12 → "012", 123 → "123".
-//    Luego incrementamos contadorId para que el próximo ID sea diferente.
+//  Funciones de propósito general que pueden reutilizarse en distintas
+//  partes del código. Considera qué operaciones se repiten frecuentemente
+//  y valdría la pena encapsular como función auxiliar.
 //
-//  formatearFecha(fechaStr)
-//    Recibe el valor del campo datetime-local ("2026-05-30T14:30")
-//    y lo convierte a "2026-05-30 · 14:30 UTC" para mostrar en las tarjetas.
-//    Si la cadena no tiene al menos 16 caracteres devuelve el valor original.
+//  Por ejemplo: generar un identificador único para cada registro,
+//  o transformar una fecha al formato que se mostrará en las tarjetas.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const generarId = () => {
-
-    const id = `SX-2026-${String(contadorId).padStart(3, "0")}`;
-  contadorId++;   
+  const id = `SX-2026-${String(contadorId).padStart(3, "0")}`;
+  contadorId++;
   return id;
 };
 
 const formatearFecha = (fechaStr) => {
-
-    if (!fechaStr || fechaStr.length < 16) return fechaStr;
-
+  if (!fechaStr || fechaStr.length < 16) return fechaStr;
   const [fecha, hora] = fechaStr.split("T");
   return `${fecha} · ${hora} UTC`;
 };
@@ -59,23 +64,22 @@ const formatearFecha = (fechaStr) => {
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECCIÓN 3 — RENDERIZADO DE TARJETAS
 //
-//  crearTarjeta(lanzamiento)
-//    Recibe un objeto lanzamiento y construye un <article> con toda la
-//    estructura HTML que exige el proyecto. Usa createElement() para
-//    cada elemento —no innerHTML en bloque— tal como pide la rúbrica.
-//    Al final añade los listeners de hover (Sección 4) y retorna el artículo.
+//  Funciones que leen el almacén de datos y convierten cada lanzamiento
+//  en un elemento HTML visible dentro del contenedor del grid.
 //
-//  renderizarTarjetas()
-//    Vacía el grid (excepto el estado vacío), crea una tarjeta por cada
-//    lanzamiento en el almacén, aplica el filtro activo, y actualiza
-//    los contadores de la topbar y del pie de la barra de filtros.
+//  La tarjeta debe construirse como un elemento del DOM con la estructura
+//  documentada en el archivo HTML. Revisa los comentarios del grid para
+//  conocer exactamente qué clases y atributos debe tener cada parte.
+//
+//  IDs relevantes del HTML:
+//    · #grid-lanzamientos  → contenedor donde se insertan las tarjetas
+//    · #estado-vacio       → se muestra cuando no hay tarjetas
+//    · #contador-visibles  → muestra cuántas tarjetas son visibles
+//    · #contador-lanzamientos → contador de vuelos en la topbar
 // ─────────────────────────────────────────────────────────────────────────────
 
 const crearTarjeta = (lanzamiento) => {
-
-
-    const article = document.createElement("article");
-
+  const article = document.createElement("article");
   article.className = `organism-launch-card organism-launch-card--${lanzamiento.estado}`;
   article.dataset.id     = lanzamiento.id;
   article.dataset.tipo   = lanzamiento.tipo;
@@ -102,13 +106,14 @@ const crearTarjeta = (lanzamiento) => {
   nombre.className   = "molecule-card-body__name";
   nombre.textContent = lanzamiento.nombre;
 
-  const tipo = document.createElement("div");
-  tipo.className = "molecule-card-body__type";
   const nombresTipo = {
     "falcon":       "FALCON 9",
     "falcon-heavy": "FALCON HEAVY",
     "starship":     "STARSHIP"
   };
+
+  const tipo = document.createElement("div");
+  tipo.className   = "molecule-card-body__type";
   tipo.textContent = nombresTipo[lanzamiento.tipo] || lanzamiento.tipo.toUpperCase();
 
   const objetivo = document.createElement("div");
@@ -128,22 +133,21 @@ const crearTarjeta = (lanzamiento) => {
   footer.className = "molecule-card-footer";
 
   const btnEditar = document.createElement("button");
-  btnEditar.className    = "atom-btn atom-btn--secondary atom-btn--sm";
+  btnEditar.className      = "atom-btn atom-btn--secondary atom-btn--sm";
   btnEditar.dataset.action = "editar";
   btnEditar.dataset.id     = lanzamiento.id;
   btnEditar.textContent    = "EDITAR";
 
   const btnCancelar = document.createElement("button");
-  btnCancelar.className    = "atom-btn atom-btn--danger atom-btn--sm";
+  btnCancelar.className      = "atom-btn atom-btn--danger atom-btn--sm";
   btnCancelar.dataset.action = "cancelar";
   btnCancelar.dataset.id     = lanzamiento.id;
   btnCancelar.textContent    = "CANCELAR";
 
-
   if (lanzamiento.estado !== "pendiente") {
-    btnEditar.disabled  = true;
-    btnEditar.style.opacity = "0.35";
-    btnCancelar.disabled = true;
+    btnEditar.disabled        = true;
+    btnEditar.style.opacity   = "0.35";
+    btnCancelar.disabled      = true;
     btnCancelar.style.opacity = "0.35";
   }
 
@@ -166,12 +170,11 @@ const renderizarTarjetas = () => {
   const grid        = document.getElementById("grid-lanzamientos");
   const estadoVacio = document.getElementById("estado-vacio");
 
-  
   const tarjetasExistentes = grid.querySelectorAll(".organism-launch-card");
   tarjetasExistentes.forEach(t => t.remove());
 
   if (lanzamientos.length === 0) {
-    estadoVacio.style.display = ""; 
+    estadoVacio.style.display = "";
     actualizarContadores(0);
     actualizarEstadisticas();
     return;
@@ -201,13 +204,15 @@ const renderizarTarjetas = () => {
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECCIÓN 4 — ANIMACIONES DE TARJETAS (HOVER)
 //
-//  agregarHover(tarjeta)
-//    Agrega dos listeners al elemento tarjeta:
-//      mouseover → añade la clase "is-hovered" (el CSS aplica la elevación)
-//      mouseout  → quita la clase "is-hovered" (el CSS revierte la animación)
+//  Cada tarjeta creada debe escuchar eventos del cursor y responder
+//  aplicando o removiendo la clase CSS que activa la animación.
 //
-//  El CSS ya tiene definida la transición en .organism-launch-card,
-//  así que solo necesitamos cambiar la clase.
+//  La clase de activación está definida en el archivo de estilos.
+//  El CSS ya tiene la transición configurada para entrada y salida.
+//
+//  Eventos que debes capturar en cada tarjeta:
+//    · mouseover  → activar el estado de hover
+//    · mouseout   → desactivar el estado de hover
 // ─────────────────────────────────────────────────────────────────────────────
 
 const agregarHover = (tarjeta) => {
@@ -223,46 +228,41 @@ const agregarHover = (tarjeta) => {
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECCIÓN 5 — FORMULARIO: REGISTRO Y EDICIÓN
 //
-//  manejarFormulario(event)
-//    Se ejecuta cuando el usuario pulsa "REGISTRAR LANZAMIENTO".
-//    Pasos:
-//      1. Previene el comportamiento nativo del <form> (recarga de página)
-//      2. Lee los valores de los cuatro campos
-//      3. Valida que ninguno esté vacío (try/catch + if/else)
-//      4. Comprueba si hay un ID en el campo oculto (modo edición)
-//         → Si hay ID: busca el objeto en el almacén con find() y lo actualiza
-//         → Si no hay ID: crea un objeto nuevo y lo agrega al array con push()
-//      5. Limpia el formulario y renderiza de nuevo
+//  Función que responde al evento de envío del formulario.
+//  Debe leer el valor de cada campo, verificar que no estén vacíos,
+//  construir el objeto del lanzamiento y añadirlo al almacén.
+//  Si el campo oculto de edición contiene un ID, debe actualizar el
+//  registro existente en lugar de crear uno nuevo.
 //
-//  limpiarFormulario()
-//    Vacía todos los campos y sale del modo edición:
-//    - Pone el campo oculto a ""
-//    - Restaura el texto del botón principal
-//    - Oculta el botón "CANCELAR EDICIÓN"
+//  IDs relevantes del HTML:
+//    · #form-lanzamiento        → el elemento <form>
+//    · #input-nombre-serie      → campo texto nombre
+//    · #select-tipo-cohete      → campo selección tipo
+//    · #input-fecha-lanzamiento → campo fecha y hora
+//    · #input-objetivo-mision   → campo texto objetivo
+//    · #input-id-edicion        → campo oculto con el ID en modo edición
+//    · #btn-registrar           → botón principal del formulario
+//    · #btn-cancelar-edicion    → botón para salir del modo edición
 // ─────────────────────────────────────────────────────────────────────────────
 
 const manejarFormulario = (event) => {
   event.preventDefault();
 
   try {
-    const nombre   = document.getElementById("input-nombre-serie").value.trim();
-    const tipo     = document.getElementById("select-tipo-cohete").value;
-    const fecha    = document.getElementById("input-fecha-lanzamiento").value;
-    const objetivo = document.getElementById("input-objetivo-mision").value.trim();
+    const nombre    = document.getElementById("input-nombre-serie").value.trim();
+    const tipo      = document.getElementById("select-tipo-cohete").value;
+    const fecha     = document.getElementById("input-fecha-lanzamiento").value;
+    const objetivo  = document.getElementById("input-objetivo-mision").value.trim();
     const idEdicion = document.getElementById("input-id-edicion").value;
-
 
     if (!nombre || !tipo || !fecha || !objetivo) {
       alert("⚠️ Todos los campos son obligatorios. Por favor completa el formulario.");
-      return;   
+      return;
     }
 
     if (idEdicion) {
-
       const lanzamiento = lanzamientos.find(l => l.id === idEdicion);
-
       if (lanzamiento) {
-       
         lanzamiento.nombre   = nombre;
         lanzamiento.tipo     = tipo;
         lanzamiento.fecha    = fecha;
@@ -270,14 +270,14 @@ const manejarFormulario = (event) => {
       }
     } else {
       const nuevoLanzamiento = {
-        id:       generarId(),    
+        id:       generarId(),
         nombre:   nombre,
         tipo:     tipo,
         fecha:    fecha,
         objetivo: objetivo,
-        estado:   "pendiente"    
+        estado:   "pendiente"
       };
-      lanzamientos.push(nuevoLanzamiento);  
+      lanzamientos.push(nuevoLanzamiento);
     }
 
     limpiarFormulario();
@@ -285,19 +285,18 @@ const manejarFormulario = (event) => {
 
   } catch (error) {
     console.error("Error al procesar el formulario:", error);
-    alert(" Ocurrió un error inesperado. Revisa la consola.");
+    alert("❌ Ocurrió un error inesperado. Revisa la consola.");
   }
 };
 
 const limpiarFormulario = () => {
-  document.getElementById("input-nombre-serie").value      = "";
-  document.getElementById("select-tipo-cohete").value      = "";
-  document.getElementById("input-fecha-lanzamiento").value = "";
-  document.getElementById("input-objetivo-mision").value   = "";
-  document.getElementById("input-id-edicion").value        = "";
+  document.getElementById("input-nombre-serie").value       = "";
+  document.getElementById("select-tipo-cohete").value       = "";
+  document.getElementById("input-fecha-lanzamiento").value  = "";
+  document.getElementById("input-objetivo-mision").value    = "";
+  document.getElementById("input-id-edicion").value         = "";
 
-  document.getElementById("btn-registrar").textContent = "▶ REGISTRAR LANZAMIENTO";
-
+  document.getElementById("btn-registrar").textContent          = "▶ REGISTRAR LANZAMIENTO";
   document.getElementById("btn-cancelar-edicion").style.display = "none";
 };
 
@@ -305,16 +304,13 @@ const limpiarFormulario = () => {
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECCIÓN 6 — CAMBIOS DE ESTADO
 //
-//  manejarAccionTarjeta(event)
-//    Un solo listener que maneja EDITAR y CANCELAR.
-//    Lee data-action y data-id del botón pulsado para saber qué hacer.
+//  Funciones que modifican un lanzamiento existente:
+//    · Modo edición: cargar los datos del registro en el formulario
+//    · Cancelación: cambiar el estado del registro a "cancelado"
 //
-//  activarModoEdicion(id)
-//    Busca el lanzamiento en el almacén, carga sus datos en el formulario
-//    y muestra el botón "CANCELAR EDICIÓN".
-//
-//  cancelarLanzamiento(id)
-//    Cambia el estado del lanzamiento a "cancelado" y re-renderiza.
+//  Las tarjetas tienen botones con los atributos data-id y data-action.
+//  Puedes usar estos atributos para saber qué registro modificar y
+//  qué acción ejecutar cuando el usuario hace clic.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const manejarAccionTarjeta = (event) => {
@@ -330,17 +326,15 @@ const manejarAccionTarjeta = (event) => {
 
 const activarModoEdicion = (id) => {
   const lanzamiento = lanzamientos.find(l => l.id === id);
-  if (!lanzamiento) return;   
+  if (!lanzamiento) return;
 
   document.getElementById("input-nombre-serie").value      = lanzamiento.nombre;
   document.getElementById("select-tipo-cohete").value      = lanzamiento.tipo;
   document.getElementById("input-fecha-lanzamiento").value = lanzamiento.fecha;
   document.getElementById("input-objetivo-mision").value   = lanzamiento.objetivo;
+  document.getElementById("input-id-edicion").value        = lanzamiento.id;
 
-  document.getElementById("input-id-edicion").value = lanzamiento.id;
-
-  document.getElementById("btn-registrar").textContent = "💾 GUARDAR CAMBIOS";
-
+  document.getElementById("btn-registrar").textContent          = "💾 GUARDAR CAMBIOS";
   document.getElementById("btn-cancelar-edicion").style.display = "block";
 
   document.getElementById("form-lanzamiento").scrollIntoView({ behavior: "smooth" });
@@ -358,29 +352,29 @@ const cancelarLanzamiento = (id) => {
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECCIÓN 7 — FILTRADO POR ESTADO
 //
-//  aplicarFiltro(event)
-//    Se ejecuta cuando el usuario pulsa cualquier botón del grupo de filtros.
-//    Lee data-filter del botón pulsado y guarda ese valor en filtroActivo.
-//    Luego actualiza la clase activa en los botones y re-renderiza.
+//  Funciones que muestran u ocultan tarjetas según el filtro activo.
+//  Al aplicar un filtro, solo deben verse las tarjetas que coincidan
+//  con el estado seleccionado. El botón activo debe marcarse visualmente.
 //
-//  actualizarBotonesFiltrro(filtro)
-//    Recorre todos los botones del grupo, quita la clase activa de todos
-//    y la agrega solo al que coincide con el filtro recibido.
+//  IDs relevantes del HTML:
+//    · #grupo-filtros  → contenedor de los botones de filtro
+//
+//  Atributo en los botones de filtro: data-filter
+//  Valores posibles: "todos" · "pendiente" · "lanzado" · "cancelado"
+//
+//  Clase CSS del botón activo: atom-btn--filter-active
 // ─────────────────────────────────────────────────────────────────────────────
 
 const aplicarFiltro = (event) => {
-  const filtro = event.currentTarget.dataset.filter;
-  filtroActivo = filtro;                   
-  actualizarBotonesFiltrro(filtro);
+  filtroActivo = event.currentTarget.dataset.filter;
+  actualizarBotonesFiltrro(filtroActivo);
   renderizarTarjetas();
 };
 
 const actualizarBotonesFiltrro = (filtro) => {
   const botones = document.querySelectorAll("#grupo-filtros .atom-btn--filter");
-
   botones.forEach(btn => {
     btn.classList.remove("atom-btn--filter-active");
-
     if (btn.dataset.filter === filtro) {
       btn.classList.add("atom-btn--filter-active");
     }
@@ -391,36 +385,36 @@ const actualizarBotonesFiltrro = (filtro) => {
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECCIÓN 8 — RELOJ Y MONITOREO AUTOMÁTICO
 //
-//  iniciarRelojYMonitor()
-//    Lanza un setInterval que se ejecuta cada 1000 ms (1 segundo).
+//  Un intervalo de tiempo que se ejecuta cada segundo y realiza dos tareas:
 //
-//    Tarea A — Reloj UTC:
-//      Crea un objeto Date con la hora actual.
-//      getUTCHours/Minutes/Seconds devuelven números; padStart los formatea
-//      a 2 dígitos ("9" → "09") y concatenamos la "Z" de zona UTC.
+//    Tarea A: Reloj en tiempo real
+//      Obtener la hora actual en UTC y mostrarla en el elemento del reloj
+//      usando el formato HH:MM:SSZ (horas, minutos, segundos + letra Z).
 //
-//    Tarea B — Monitor automático de lanzamientos:
-//      Recorre el array buscando lanzamientos pendientes cuya fecha ya pasó.
-//      Date.now() devuelve milisegundos desde epoch; new Date(fecha).getTime()
-//      convierte el string de fecha a la misma escala para comparar.
-//      Si la fecha ya se alcanzó, cambia el estado a "lanzado" y re-renderiza.
+//    Tarea B: Detección automática de lanzamientos
+//      Recorrer el almacén y buscar registros con estado "pendiente"
+//      cuya fecha programada ya se haya alcanzado o superado.
+//      Cuando se detecte uno, cambiar su estado a "lanzado" y
+//      actualizar la vista para reflejar el cambio.
+//
+//  ID relevante del HTML:
+//    · #reloj-principal → elemento donde se despliega la hora
 // ─────────────────────────────────────────────────────────────────────────────
 
 const iniciarRelojYMonitor = () => {
   setInterval(() => {
 
     const ahora = new Date();
-
     const hh = String(ahora.getUTCHours()).padStart(2, "0");
     const mm = String(ahora.getUTCMinutes()).padStart(2, "0");
     const ss = String(ahora.getUTCSeconds()).padStart(2, "0");
 
     document.getElementById("reloj-principal").textContent = `${hh}:${mm}:${ss}Z`;
 
-    let huboCambio = false; 
+    let huboCambio = false;
 
     lanzamientos.forEach(lanzamiento => {
-      if (lanzamiento.estado !== "pendiente") return;  
+      if (lanzamiento.estado !== "pendiente") return;
 
       const fechaProgramada = new Date(lanzamiento.fecha).getTime();
 
@@ -434,29 +428,28 @@ const iniciarRelojYMonitor = () => {
       renderizarTarjetas();
     }
 
-  }, 1000);  
+  }, 1000);
 };
 
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECCIÓN 9 — ESTADÍSTICAS
 //
-//  actualizarEstadisticas()
-//    Recorre el array con filter() para contar cuántos lanzamientos hay
-//    de cada estado y actualiza el textContent de los cuatro spans del panel.
+//  Función que recorre el almacén, cuenta los registros por estado
+//  y actualiza los elementos del panel de estadísticas con los totales.
 //
-//  actualizarContadores(visibles)
-//    Actualiza el contador de vuelos activos en la topbar y el texto
-//    "N REGISTROS" en la barra de filtros.
-//    Recibe como argumento cuántas tarjetas son visibles con el filtro activo.
+//  IDs relevantes del HTML:
+//    · #stat-pendientes  → contador de lanzamientos pendientes
+//    · #stat-lanzados    → contador de lanzamientos ejecutados
+//    · #stat-cancelados  → contador de lanzamientos cancelados
+//    · #stat-total       → total de registros en el sistema
 // ─────────────────────────────────────────────────────────────────────────────
 
 const actualizarEstadisticas = () => {
-
-  const pendientes  = lanzamientos.filter(l => l.estado === "pendiente").length;
-  const lanzados    = lanzamientos.filter(l => l.estado === "lanzado").length;
-  const cancelados  = lanzamientos.filter(l => l.estado === "cancelado").length;
-  const total       = lanzamientos.length;
+  const pendientes = lanzamientos.filter(l => l.estado === "pendiente").length;
+  const lanzados   = lanzamientos.filter(l => l.estado === "lanzado").length;
+  const cancelados = lanzamientos.filter(l => l.estado === "cancelado").length;
+  const total      = lanzamientos.length;
 
   document.getElementById("stat-pendientes").textContent = pendientes;
   document.getElementById("stat-lanzados").textContent   = lanzados;
@@ -466,21 +459,21 @@ const actualizarEstadisticas = () => {
 
 const actualizarContadores = (visibles) => {
   document.getElementById("contador-lanzamientos").textContent = lanzamientos.length;
-
-  document.getElementById("contador-visibles").textContent = `${visibles} REGISTROS`;
+  document.getElementById("contador-visibles").textContent     = `${visibles} REGISTROS`;
 };
 
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECCIÓN 10 — INICIALIZACIÓN
 //
-//  DOMContentLoaded se dispara cuando el navegador termina de leer el HTML.
-//  Dentro conectamos todos los eventos, iniciamos el reloj y hacemos el
-//  primer renderizado (que mostrará el estado vacío porque el array está vacío).
+//  Punto de arranque de la aplicación. Todo el código que necesita
+//  interactuar con elementos del DOM debe ejecutarse aquí, dentro de
+//  un mecanismo que garantice que la página ya terminó de cargar.
 //
-//  ¿Por qué dentro de DOMContentLoaded?
-//  Si el script corre antes de que el HTML esté listo, getElementById()
-//  devolverá null y el programa fallará.
+//  Desde aquí debes:
+//    · Conectar los eventos del formulario y los botones
+//    · Iniciar el intervalo del reloj y el monitor automático
+//    · Hacer el primer renderizado y actualizar las estadísticas
 // ─────────────────────────────────────────────────────────────────────────────
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -501,4 +494,8 @@ document.addEventListener("DOMContentLoaded", () => {
   iniciarRelojYMonitor();
 
   renderizarTarjetas();
+
 });
+
+
+ 
